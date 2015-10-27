@@ -40,7 +40,7 @@ let Router = Backbone.Router.extend({
     
     this.showSpinner();
 
-    this.todos.fetch().then(()=>){
+    this.todos.fetch().then(()=>{
 
       this.$el.html( singleTemp(this.todos.toJSON()) );
 
