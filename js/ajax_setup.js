@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
-const APP_ID = 'mmoMgOQzCeRE8Ad4vmRkHMLYyTwEPPrAGXMEfDFm';
-const API_KEY = 'xvocUSdI55mrUV7m7fb0ylyXO2kQ6EML2mlBDEoY';
+const APP_ID = 'ITqpiqj3kSSimPxJhoFJEDaEs7GNUQ4HldoKnWHw';
+const API_KEY = 'p9rsvcp3YtEB67185YLNkvhdehX2bVhNNa52AxpD';
 
 $.ajaxSetup({
   headers: {

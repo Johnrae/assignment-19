@@ -3,14 +3,15 @@
 function proccessData(data) {
   return data.map(function(item) {
     return `
-      <li>${item.title}</li>
+      ,<li class="clickable" data-user-id="${item.objectId}">${item.name}</li>
+
     `
   }).join('');
 }
 
 function singleTemplate(data) {
   return `
-    <h2>Something Todo</h2>
+    <h2>Contact</h2>
     <ul>${proccessData(data)}</ul>
   `;
 }

@@ -1,5 +1,5 @@
 import Backbone from 'backbone';
-
+import $ from 'jquery';
 import ContactCollection from './contact_collection';
 
 import listTemp from './views/contact_list';
@@ -8,8 +8,7 @@ import singleTemp from './views/contact';
 let Router = Backbone.Router.extend({
 
   routes: {
-    ""      : "home",
-    "todos" : "showContacts",
+    ""      : "showContacts",
     "contact/:id" : "showSingleContact",
     "about" : "showAbout"
   },
@@ -17,12 +16,37 @@ let Router = Backbone.Router.extend({
   initialize: function(appElement) {
     this.$el = appElement;
 
-    this.todos = new TodosCollection();
+    this.users = new ContactCollection();
+
+    let router = this;
+
+    this.$el.on('click', '.clickable', function(event){
+      let $li= $(event.currentTarget);
+      var userId = $li.data('user-id');
+      console.log('show me the money', userId);
+      router.navigate(`list/${userId}`, {trigger: true});
+      router.showSpecificContact()
+
+    });
   },
 
   home: function() {
     console.log('show home page');
     this.$el.html( listTemp() );
+  },
+
+  showSpecificContact: function(userId){
+    let user = this.users.get(userId);
+    if (user) {
+      this.$el.html( listTemp(users.toJSON()));
+    } else {
+      let router = this;
+      user = this.users.add({objectId: userId});
+      this.showSpinner();
+      user.fetch().then(function(){
+        router.$el.html( listTemp(user.toJSON))
+      })
+    }
   },
 
   showSpinner: function() {
@@ -40,9 +64,9 @@ let Router = Backbone.Router.extend({
     
     this.showSpinner();
 
-    this.todos.fetch().then(()=>{
+    this.users.fetch().then(()=>{
 
-      this.$el.html( singleTemp(this.todos.toJSON()) );
+      this.$el.html( singleTemp(this.users.toJSON()) );
 
     });
 

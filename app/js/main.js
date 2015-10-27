@@ -7,8 +7,8 @@ var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var APP_ID = 'mmoMgOQzCeRE8Ad4vmRkHMLYyTwEPPrAGXMEfDFm';
-var API_KEY = 'xvocUSdI55mrUV7m7fb0ylyXO2kQ6EML2mlBDEoY';
+var APP_ID = 'ITqpiqj3kSSimPxJhoFJEDaEs7GNUQ4HldoKnWHw';
+var API_KEY = 'p9rsvcp3YtEB67185YLNkvhdehX2bVhNNa52AxpD';
 
 _jquery2['default'].ajaxSetup({
   headers: {
@@ -17,7 +17,7 @@ _jquery2['default'].ajaxSetup({
   }
 });
 
-},{"jquery":8}],2:[function(require,module,exports){
+},{"jquery":9}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30,9 +30,15 @@ var _backbone = require('backbone');
 
 var _backbone2 = _interopRequireDefault(_backbone);
 
+var _contact_model = require('./contact_model');
+
+var _contact_model2 = _interopRequireDefault(_contact_model);
+
 var ContactCollection = _backbone2['default'].Collection.extend({
 
-  url: 'https://api.parse.com/1/classes/Todo',
+  url: 'https://api.parse.com/1/classes/People',
+
+  model: _contact_model2['default'],
 
   parse: function parse(data) {
     return data.results;
@@ -43,7 +49,31 @@ var ContactCollection = _backbone2['default'].Collection.extend({
 exports['default'] = ContactCollection;
 module.exports = exports['default'];
 
-},{"backbone":7}],3:[function(require,module,exports){
+},{"./contact_model":3,"backbone":8}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _backbone = require('backbone');
+
+var _backbone2 = _interopRequireDefault(_backbone);
+
+var ContactModel = _backbone2['default'].Model.extend({
+
+  urlRoot: 'https://api.parse.com/1/classes/People',
+
+  idAttribute: 'objectId'
+
+});
+
+exports['default'] = ContactModel;
+module.exports = exports['default'];
+
+},{"backbone":8}],4:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -63,11 +93,9 @@ var appElement = (0, _jquery2['default'])('.app');
 var router = new _router2['default'](appElement);
 router.start();
 
-window.router = router;
-
 console.log('Hello, World');
 
-},{"./ajax_setup":1,"./router":4,"jquery":8}],4:[function(require,module,exports){
+},{"./ajax_setup":1,"./router":5,"jquery":9}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -79,6 +107,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 var _backbone = require('backbone');
 
 var _backbone2 = _interopRequireDefault(_backbone);
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
 
 var _contact_collection = require('./contact_collection');
 
@@ -95,8 +127,7 @@ var _viewsContact2 = _interopRequireDefault(_viewsContact);
 var Router = _backbone2['default'].Router.extend({
 
   routes: {
-    "": "home",
-    "todos": "showContacts",
+    "": "showContacts",
     "contact/:id": "showSingleContact",
     "about": "showAbout"
   },
@@ -104,12 +135,40 @@ var Router = _backbone2['default'].Router.extend({
   initialize: function initialize(appElement) {
     this.$el = appElement;
 
-    this.todos = new TodosCollection();
+    this.users = new _contact_collection2['default']();
+
+    var router = this;
+
+    this.$el.on('click', '.clickable', function (event) {
+      var $li = (0, _jquery2['default'])(event.currentTarget);
+      var userId = $li.data('user-id');
+      console.log('show me the money', userId);
+      router.navigate('list/' + userId, { trigger: true });
+      router.showSpecificContact();
+    });
   },
 
   home: function home() {
     console.log('show home page');
     this.$el.html((0, _viewsContact_list2['default'])());
+  },
+
+  showSpecificContact: function showSpecificContact(userId) {
+    var _this = this;
+
+    var user = this.users.get(userId);
+    if (user) {
+      this.$el.html((0, _viewsContact_list2['default'])(users.toJSON()));
+    } else {
+      (function () {
+        var router = _this;
+        user = _this.users.add({ objectId: userId });
+        _this.showSpinner();
+        user.fetch().then(function () {
+          router.$el.html((0, _viewsContact_list2['default'])(user.toJSON));
+        });
+      })();
+    }
   },
 
   showSpinner: function showSpinner() {
@@ -121,15 +180,15 @@ var Router = _backbone2['default'].Router.extend({
   },
 
   showContacts: function showContacts() {
-    var _this = this;
+    var _this2 = this;
 
     console.log('show contacts page');
 
     this.showSpinner();
 
-    this.todos.fetch().then(function () {
+    this.users.fetch().then(function () {
 
-      _this.$el.html((0, _viewsContact2['default'])(_this.todos.toJSON()));
+      _this2.$el.html((0, _viewsContact2['default'])(_this2.users.toJSON()));
     });
   },
 
@@ -146,7 +205,7 @@ var Router = _backbone2['default'].Router.extend({
 exports['default'] = Router;
 module.exports = exports['default'];
 
-},{"./contact_collection":2,"./views/contact":5,"./views/contact_list":6,"backbone":7}],5:[function(require,module,exports){
+},{"./contact_collection":2,"./views/contact":6,"./views/contact_list":7,"backbone":8,"jquery":9}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -155,31 +214,31 @@ Object.defineProperty(exports, '__esModule', {
 
 function proccessData(data) {
   return data.map(function (item) {
-    return '\n      <li>' + item.title + '</li>\n    ';
+    return '\n      ,<li class="clickable" data-user-id="' + item.objectId + '">' + item.name + '</li>\n\n    ';
   }).join('');
 }
 
 function singleTemplate(data) {
-  return '\n    <h2>Something Todo</h2>\n    <ul>' + proccessData(data) + '</ul>\n  ';
+  return '\n    <h2>Contact</h2>\n    <ul>' + proccessData(data) + '</ul>\n  ';
 }
 
 exports['default'] = singleTemplate;
 module.exports = exports['default'];
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-function contactTemplate() {
+function ContactTemplate() {
   return "\n    <h2>Home page</h2>\n  ";
 }
 
-exports["default"] = contactTemplate;
+exports["default"] = ContactTemplate;
 module.exports = exports["default"];
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2078,7 +2137,7 @@ module.exports = exports["default"];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"jquery":8,"underscore":9}],8:[function(require,module,exports){
+},{"jquery":9,"underscore":10}],9:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -11290,7 +11349,7 @@ return jQuery;
 
 }));
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -12840,7 +12899,7 @@ return jQuery;
   }
 }.call(this));
 
-},{}]},{},[3])
+},{}]},{},[4])
 
 
 //# sourceMappingURL=main.js.map
