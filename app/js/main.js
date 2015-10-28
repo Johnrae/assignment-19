@@ -142,11 +142,11 @@ var Router = _backbone2['default'].Router.extend({
 
     var router = this;
 
-    this.$el.on('click', '.todo-list-item', function (event) {
+    this.$el.on('click', '.user-list-item', function (event) {
       var $li = (0, _jquery2['default'])(event.currentTarget);
-      var todoId = $li.data('todo-id');
-      router.navigate('list/' + todoId);
-      router.showContact(todoId);
+      var userId = $li.data('user-Id');
+      router.navigate('list/' + userId);
+      router.showContact(userId);
     });
   },
 

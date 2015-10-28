@@ -21,11 +21,11 @@ let Router = Backbone.Router.extend({
 
     let router = this;
 
-    this.$el.on('click', '.todo-list-item', function(event) {
+    this.$el.on('click', '.user-list-item', function(event) {
       let $li = $(event.currentTarget);
-      var todoId = $li.data('todo-id');
-      router.navigate(`list/${todoId}`);
-      router.showContact(todoId);
+      var userId = $li.data('user-Id');
+      router.navigate(`list/${userId}`);
+      router.showContact(userId);
     });
   },
 
