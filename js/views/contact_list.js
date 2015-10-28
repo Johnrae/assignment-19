@@ -1,6 +1,6 @@
-function ContactTemplate() {
+function ContactTemplate(data) {
   return `
-    <h2>Home page</h2>
+    <h2>${data.name}</h2>
   `;
 }
 

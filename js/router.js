@@ -1,52 +1,32 @@
 import Backbone from 'backbone';
 import $ from 'jquery';
-import ContactCollection from './contact_collection';
 
-import listTemp from './views/contact_list';
-import singleTemp from './views/contact';
+import contactCollection from './contact_collection';
+
+import homeTemplate from './views/home';
+import listTemplate from './views/contact_list';
+import contactTemplate from './views/contact';
 
 let Router = Backbone.Router.extend({
 
   routes: {
-    ""      : "showContacts",
-    "contact/:id" : "showSingleContact",
-    "about" : "showAbout"
+    ""      : "showList",
+    "/:id" : "showContact",
   },
 
   initialize: function(appElement) {
     this.$el = appElement;
 
-    this.users = new ContactCollection();
+    this.list = new contactCollection();
 
     let router = this;
 
-    this.$el.on('click', '.clickable', function(event){
-      let $li= $(event.currentTarget);
-      var userId = $li.data('user-id');
-      console.log('show me the money', userId);
-      router.navigate(`list/${userId}`, {trigger: true});
-      router.showSpecificContact()
-
+    this.$el.on('click', '.todo-list-item', function(event) {
+      let $li = $(event.currentTarget);
+      var todoId = $li.data('todo-id');
+      router.navigate(`list/${todoId}`);
+      router.showContact(todoId);
     });
-  },
-
-  home: function() {
-    console.log('show home page');
-    this.$el.html( listTemp() );
-  },
-
-  showSpecificContact: function(userId){
-    let user = this.users.get(userId);
-    if (user) {
-      this.$el.html( listTemp(users.toJSON()));
-    } else {
-      let router = this;
-      user = this.users.add({objectId: userId});
-      this.showSpinner();
-      user.fetch().then(function(){
-        router.$el.html( listTemp(user.toJSON))
-      })
-    }
   },
 
   showSpinner: function() {
@@ -55,25 +35,35 @@ let Router = Backbone.Router.extend({
     );
   },
 
-  showSingleContact: function(todoId) {
-    console.log('should show', todoId);
+  showContact: function(userId) {
+    let user = this.list.get(userId);
+
+    if (user) {
+      this.$el.html( contactTemplate(user.toJSON()) );
+    } else {
+      let router = this;
+      user = this.list.add({objectId: userId});
+      this.showSpinner();
+      user.fetch().then(function() {
+        router.$el.html( contactTemplate(user.toJSON()) );
+      });
+    }
+
   },
 
-  showContacts: function() {
-    console.log('show contacts page');
+  showList: function() {
+    console.log('show list page');
     
     this.showSpinner();
 
-    this.users.fetch().then(()=>{
+    var router = this;
 
-      this.$el.html( singleTemp(this.users.toJSON()) );
+    router.list.fetch().then(()=>{
+
+      this.$el.html( listTemplate( this.list.toJSON()) );
 
     });
 
-  },
-
-  showAbout: function() {
-    console.log('show about page');
   },
 
   start: function() {
